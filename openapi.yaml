@@ -1,0 +1,289 @@
+openapi: "3.0.3"
+info:
+  title: "microservices_manager API"
+  description: "microservices_manager API"
+  version: "1.0.0"
+servers:
+  - url: "https://microservices_manager"
+paths:
+  /api/auth/user:
+    post:
+      summary: "POST api/auth/user"
+      operationId: "createUser"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UserRegisterRequest"
+        required: true
+      responses:
+        "201":
+          description: "Created"
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/TokenPairResponse"
+  /api/auth/user/login:
+    post:
+      summary: "POST api/auth/user/login"
+      operationId: "loginUser"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UserLoginRequest"
+        required: true
+      responses:
+        "200":
+          description: "OK"
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/TokenPairResponse"
+  /api/auth/token:
+    get:
+      summary: "GET api/auth/token"
+      operationId: "validateToken"
+      parameters:
+        - name: "Authorization"
+          in: "header"
+          required: true
+          schema:
+            type: "string"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            '*/*':
+              schema:
+                type: "string"
+  /api/auth/token/refresh:
+    post:
+      summary: "POST api/auth/token/refresh"
+      operationId: "refreshToken"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RefreshTokenRequest"
+        required: true
+      responses:
+        "200":
+          description: "OK"
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/TokenRefreshResponse"
+  /api/exercise/record:
+    post:
+      summary: "POST api/exercise/record"
+      operationId: "createExerciseRecord"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ExerciseRecordRequest"
+        required: true
+      responses:
+        "201":
+          description: "Created"
+          content:
+            '*/*':
+              schema:
+                type: "string"
+  /api/exercise/record/bulk:
+    post:
+      summary: "POST api/exercise/record/bulk"
+      operationId: "createManyExerciseRecord"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: "array"
+              items:
+                $ref: "#/components/schemas/ExerciseRecordRequest"
+        required: true
+      responses:
+        "201":
+          description: "Created"
+          content:
+            '*/*':
+              schema:
+                type: "array"
+                items:
+                  type: "string"
+  /api/exercise/record/get-all:
+    post:
+      summary: "POST api/exercise/record/get-all"
+      operationId: "getExerciseRecords"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: "array"
+              items:
+                type: "integer"
+                format: "int64"
+        required: true
+      responses:
+        "200":
+          description: "OK"
+          content:
+            '*/*':
+              schema:
+                type: "array"
+                items:
+                  $ref: "#/components/schemas/ExerciseRecord"
+  /api/exercise:
+    get:
+      summary: "GET api/exercise"
+      operationId: "getAllExercises"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            '*/*':
+              schema:
+                type: "array"
+                items:
+                  $ref: "#/components/schemas/ExerciseResponse"
+    post:
+      summary: "POST api/exercise"
+      operationId: "createExercise"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ExerciseRequest"
+        required: true
+      responses:
+        "201":
+          description: "Created"
+          content:
+            '*/*':
+              schema:
+                type: "string"
+components:
+  schemas:
+    UserRegisterRequest:
+      type: "object"
+      properties:
+        username:
+          type: "string"
+        email:
+          type: "string"
+        firstname:
+          type: "string"
+        lastname:
+          type: "string"
+        password:
+          type: "string"
+    TokenPairResponse:
+      type: "object"
+      properties:
+        token:
+          type: "string"
+        refresh:
+          type: "string"
+    UserLoginRequest:
+      type: "object"
+      properties:
+        email:
+          type: "string"
+        password:
+          type: "string"
+    RefreshTokenRequest:
+      type: "object"
+      properties:
+        refreshToken:
+          type: "string"
+    TokenRefreshResponse:
+      type: "object"
+      properties:
+        token:
+          type: "string"
+    ExerciseRecordRequest:
+      type: "object"
+      properties:
+        exerciseId:
+          type: "string"
+        reps:
+          type: "array"
+          items:
+            type: "integer"
+            format: "int32"
+        weight:
+          type: "array"
+          items:
+            type: "number"
+            format: "double"
+        time:
+          type: "array"
+          items:
+            type: "number"
+            format: "double"
+    ExerciseRecord:
+      type: "object"
+      properties:
+        id:
+          type: "string"
+        exerciseId:
+          type: "string"
+    ExerciseResponse:
+      type: "object"
+      properties:
+        id:
+          type: "string"
+        title:
+          type: "string"
+        description:
+          type: "string"
+        type:
+          type: "string"
+        bodyPart:
+          type: "string"
+        level:
+          type: "string"
+    ExerciseRequest:
+      type: "object"
+      properties:
+        title:
+          type: "string"
+        description:
+          type: "string"
+        type:
+          type: "string"
+          enum:
+            - "STRENGTH"
+            - "CARDIO"
+            - "PLYOMETRICS"
+            - "STRETCHING"
+            - "POWERLIFTING"
+            - "OLYMPIC_WEIGHTLIFTING"
+            - "STRONGMAN"
+        bodyPart:
+          type: "string"
+          enum:
+            - "ABDOMINALS"
+            - "ADDUCTORS"
+            - "ABDUCTORS"
+            - "BICEPS"
+            - "CALVES"
+            - "CHEST"
+            - "FOREARMS"
+            - "GLUTES"
+            - "HAMSTRINGS"
+            - "LATS"
+            - "LOWER_BACK"
+            - "MIDDLE_BACK"
+            - "NECK"
+            - "QUADRICEPS"
+            - "TRAPS"
+            - "TRICEPS"
+            - "SHOULDERS"
+        level:
+          type: "string"
+          enum:
+            - "BEGINNER"
+            - "INTERMEDIATE"
+            - "EXPERT"
