@@ -56,7 +56,7 @@ public class AuthenticationGatewayFactory extends AbstractGatewayFilterFactory<A
 
 
                         ServerHttpResponse response = exchange.getResponse();
-                        byte[] bodyBytes = "Token validation error".getBytes();
+                        byte[] bodyBytes = errorMsg.getBytes();
                         DataBuffer buffer = response.bufferFactory().wrap(bodyBytes);
                         response.setStatusCode(errorCode);
                         response.getHeaders().add("Content-Type", "application/json");

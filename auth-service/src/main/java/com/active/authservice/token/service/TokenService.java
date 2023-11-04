@@ -29,7 +29,7 @@ public class TokenService {
 
     private final KeyPair keyPair;
 
-    public TokenService(@Value("") String keystorePassword) throws KeyStoreException, CertificateException, IOException, NoSuchAlgorithmException, UnrecoverableKeyException {
+    public TokenService(@Value("${keystore.password}") String keystorePassword) throws KeyStoreException, CertificateException, IOException, NoSuchAlgorithmException, UnrecoverableKeyException {
         char[] keystorePasswordBytes = keystorePassword.toCharArray();
 
         KeyStore keyStore = KeyStore.getInstance("JKS");
