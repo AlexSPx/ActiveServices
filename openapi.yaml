@@ -1,7 +1,7 @@
 openapi: "3.0.3"
 info:
   title: "Active Backend"
-  description: "Active Backend"
+  description: "microservices_manager API"
   version: "1.0.0"
 servers:
   - url: "https://microservices_manager"
@@ -15,6 +15,40 @@ paths:
           application/json:
             schema:
               $ref: "#/components/schemas/UserRegisterRequest"
+        required: true
+      responses:
+        "201":
+          description: "Created"
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/TokenPairResponse"
+  /api/auth/user/google:
+    post:
+      summary: "POST api/auth/user/google"
+      operationId: "createGoogleUser"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/IdTokenRequest"
+        required: true
+      responses:
+        "201":
+          description: "Created"
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/TokenPairResponse"
+  /api/auth/user/google/login:
+    post:
+      summary: "POST api/auth/user/google/login"
+      operationId: "loginGoogleUser"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/IdTokenRequest"
         required: true
       responses:
         "201":
@@ -40,6 +74,23 @@ paths:
             '*/*':
               schema:
                 $ref: "#/components/schemas/TokenPairResponse"
+  /api/auth/user/me:
+    get:
+      summary: "GET api/auth/user/me"
+      operationId: "me"
+      parameters:
+        - name: "Authorization"
+          in: "header"
+          required: true
+          schema:
+            type: "string"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/UserMeResponse"
   /api/auth/token:
     get:
       summary: "GET api/auth/token"
@@ -229,6 +280,31 @@ paths:
               schema:
                 $ref: "#/components/schemas/WorkoutRecord"
   /api/workout:
+    get:
+      summary: "GET api/workout"
+      operationId: "getUserWorkouts"
+      parameters:
+        - name: "page"
+          in: "query"
+          required: false
+          schema:
+            type: "integer"
+            format: "int32"
+            default: "0"
+        - name: "uid"
+          in: "header"
+          required: true
+          schema:
+            type: "string"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            '*/*':
+              schema:
+                type: "array"
+                items:
+                  $ref: "#/components/schemas/Workout"
     post:
       summary: "POST api/workout"
       operationId: "createWorkout"
@@ -251,13 +327,13 @@ paths:
             '*/*':
               schema:
                 type: "string"
-  /api/workout/:
+  /api/workout/{id}:
     get:
-      summary: "GET api/workout/"
+      summary: "GET api/workout/{id}"
       operationId: "getWorkoutById"
       parameters:
         - name: "id"
-          in: "query"
+          in: "path"
           required: true
           schema:
             type: "string"
@@ -290,12 +366,32 @@ components:
           type: "string"
         refresh:
           type: "string"
+    IdTokenRequest:
+      type: "object"
+      properties:
+        idToken:
+          type: "string"
     UserLoginRequest:
       type: "object"
       properties:
         email:
           type: "string"
         password:
+          type: "string"
+    UserMeResponse:
+      type: "object"
+      properties:
+        id:
+          type: "string"
+        gid:
+          type: "string"
+        username:
+          type: "string"
+        email:
+          type: "string"
+        firstname:
+          type: "string"
+        lastname:
           type: "string"
     RefreshTokenRequest:
       type: "object"
@@ -423,19 +519,6 @@ components:
           type: "array"
           items:
             type: "string"
-    WorkoutCreateRequest:
-      type: "object"
-      properties:
-        workoutStructureRecords:
-          type: "array"
-          items:
-            type: "string"
-        title:
-          type: "string"
-        createdBy:
-          type: "string"
-        updatedAt:
-          type: "string"
     WorkoutStructure:
       type: "object"
       properties:
@@ -460,3 +543,14 @@ components:
         updatedAt:
           type: "string"
           format: "date-time"
+    WorkoutCreateRequest:
+      type: "object"
+      properties:
+        workoutStructureRecords:
+          type: "array"
+          items:
+            type: "string"
+        title:
+          type: "string"
+        updatedAt:
+          type: "string"

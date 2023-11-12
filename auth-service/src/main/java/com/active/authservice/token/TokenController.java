@@ -2,8 +2,8 @@ package com.active.authservice.token;
 
 import com.active.authservice.token.dto.RefreshTokenRequest;
 import com.active.authservice.token.dto.TokenRefreshResponse;
+import com.active.authservice.token.exceptions.TokenException;
 import com.active.authservice.token.exceptions.TokenIssuerException;
-import com.active.authservice.token.service.TokenService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;

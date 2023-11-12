@@ -15,6 +15,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/workout")
 @RequiredArgsConstructor
@@ -29,9 +31,16 @@ public class WorkoutController {
         return workoutService.create(workoutCreateRequest, uid);
     }
 
-    @GetMapping("/")
+    @GetMapping
     @ResponseStatus(HttpStatus.OK)
-    public Workout getWorkoutById(@RequestParam("id") String id) throws WorkoutNotFoundException {
+    public List<Workout> getUserWorkouts(@RequestHeader("uid") String uid,
+                                         @RequestParam(defaultValue = "0") int page) {
+        return workoutService.getByUser(uid, page, 10);
+    }
+
+    @GetMapping("/{id}")
+    @ResponseStatus(HttpStatus.OK)
+    public Workout getWorkoutById(@PathVariable("id") String id) throws WorkoutNotFoundException {
         return workoutService.getById(id);
     }
 }

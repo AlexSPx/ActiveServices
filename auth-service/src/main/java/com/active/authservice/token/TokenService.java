@@ -1,13 +1,14 @@
-package com.active.authservice.token.service;
+package com.active.authservice.token;
 
 import com.active.authservice.token.dto.TokenRefreshResponse;
+import com.active.authservice.token.exceptions.TokenException;
 import com.active.authservice.token.exceptions.TokenIssuerException;
+import com.active.authservice.user.dto.TokenPairResponse;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -45,6 +46,13 @@ public class TokenService {
         );
     }
 
+    public TokenPairResponse generateTokenPair(String uid) {
+        return TokenPairResponse.builder()
+                .token(generateJWT(uid))
+                .refresh(generateRefresh(uid))
+                .build();
+    }
+
     public String generateJWT(String uid) {
         return Jwts.builder()
                 .issuer("active")
@@ -80,12 +88,18 @@ public class TokenService {
     }
 
     public String validateToken(String token) throws TokenIssuerException, ExpiredJwtException {
-        Claims claims = Jwts.parser()
-                .verifyWith(keyPair.getPublic())
-                .decryptWith(keyPair.getPrivate())
-                .build()
-                .parseSignedClaims(token)
-                .getPayload();
+        Claims claims;
+
+        try {
+            claims = Jwts.parser()
+                    .verifyWith(keyPair.getPublic())
+                    .decryptWith(keyPair.getPrivate())
+                    .build()
+                    .parseSignedClaims(token)
+                    .getPayload();
+        } catch (Exception ignored) {
+            throw new TokenException();
+        }
 
         if (!claims.getIssuer().equals("active")) {
             throw new TokenIssuerException();
