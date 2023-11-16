@@ -12,5 +12,4 @@ import lombok.Data;
 public class WorkoutCreateRequest {
     private String[] workoutStructureRecords;
     private String title;
-    private String updatedAt;
 }

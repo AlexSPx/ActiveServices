@@ -20,6 +20,7 @@ public class WorkoutRecordService {
     public String create(WorkoutRecordCreateRequest workoutRecordCreateRequest, String uid) {
         WorkoutRecord workoutRecord = WorkoutRecord.builder()
                 .workoutId(workoutRecordCreateRequest.getWorkoutId())
+                .workoutTitle(workoutRecordCreateRequest.getWorkoutTitle())
                 .uid(uid)
                 .duration(workoutRecordCreateRequest.getDuration())
                 .finishedAt(LocalDateTime.now())

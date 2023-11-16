@@ -16,11 +16,22 @@ import org.springframework.data.mongodb.core.mapping.Document;
 public class ExerciseRecord {
     private String id;
     private String exerciseId;
+    private String exerciseName;
     private boolean isTimeBased;
 
-    public ExerciseRecord(String exerciseId, boolean isTimeBased){
+    public ExerciseRecord(String exerciseId, String exerciseName, boolean isTimeBased){
         this.exerciseId = exerciseId;
         this.isTimeBased = isTimeBased;
+        this.exerciseName = exerciseName;
     }
 
+    @Override
+    public String toString() {
+        return "ExerciseRecord{" +
+                "id='" + id + '\'' +
+                ", exerciseId='" + exerciseId + '\'' +
+                ", exerciseName='" + exerciseName + '\'' +
+                ", isTimeBased=" + isTimeBased +
+                '}';
+    }
 }

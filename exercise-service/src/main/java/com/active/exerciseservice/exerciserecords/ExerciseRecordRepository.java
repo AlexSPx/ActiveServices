@@ -5,5 +5,5 @@ import org.springframework.data.mongodb.repository.MongoRepository;
 
 import java.util.List;
 
-public interface ExerciseRecordRepository extends MongoRepository<ExerciseRecord, Long> {
+public interface ExerciseRecordRepository extends MongoRepository<ExerciseRecord, String> {
 }

@@ -16,6 +16,7 @@ public class WorkoutRecord {
     @Id
     private String id;
     private String workoutId;
+    private String workoutTitle;
     private String uid;
     private int duration; // In seconds
     private LocalDateTime finishedAt;

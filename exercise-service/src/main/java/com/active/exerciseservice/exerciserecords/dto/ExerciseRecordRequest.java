@@ -9,6 +9,7 @@ import lombok.Data;
 @AllArgsConstructor
 public class ExerciseRecordRequest {
     private String exerciseId;
+    private String exerciseName;
     private boolean isTimeBased;
     private int[] reps;
     private double[] weight;
