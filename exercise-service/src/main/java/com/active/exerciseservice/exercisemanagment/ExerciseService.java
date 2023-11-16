@@ -2,8 +2,16 @@ package com.active.exerciseservice.exercisemanagment;
 
 import com.active.exerciseservice.exercisemanagment.dto.ExerciseRequest;
 import com.active.exerciseservice.exercisemanagment.dto.ExerciseResponse;
+import com.active.exerciseservice.exercisemanagment.repository.ExerciseRepository;
+import com.active.exerciseservice.types.BodyPart;
+import com.active.exerciseservice.types.ExerciseType;
+import com.active.exerciseservice.types.Level;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -48,4 +56,23 @@ public class ExerciseService {
                 .build();
     }
 
+    public List<ExerciseModel> getAllByIds(List<String> ids) {
+        return exerciseRepository.findAllById(ids);
+    }
+
+    public List<ExerciseResponse> searchExercises(String title,
+                                                  String description,
+                                                  ExerciseType type,
+                                                  BodyPart bodyPart,
+                                                  Level level,
+                                                  int offset,
+                                                  int limit) {
+        Pageable page = PageRequest
+                .of(offset, limit, Sort.by("title").descending());
+
+        Page<ExerciseModel> exercises = exerciseRepository.
+                findByCriteria(title, description, type, bodyPart, level, page);
+
+        return exercises.stream().map(this::mapToExerciseResponse).toList();
+    }
 }

@@ -1,6 +1,7 @@
 package com.active.authservice.token;
 
 import com.active.authservice.token.dto.TokenRefreshResponse;
+import com.active.authservice.token.exceptions.RefreshException;
 import com.active.authservice.token.exceptions.TokenException;
 import com.active.authservice.token.exceptions.TokenIssuerException;
 import com.active.authservice.user.dto.TokenPairResponse;
@@ -73,12 +74,18 @@ public class TokenService {
     }
 
     public TokenRefreshResponse refreshToken(String refresh) {
-        Claims claims = Jwts.parser()
-                .verifyWith(keyPair.getPublic())
-                .decryptWith(keyPair.getPrivate())
-                .build()
-                .parseSignedClaims(refresh)
-                .getPayload();
+        Claims claims;
+
+        try {
+            claims = Jwts.parser()
+                    .verifyWith(keyPair.getPublic())
+                    .decryptWith(keyPair.getPrivate())
+                    .build()
+                    .parseSignedClaims(refresh)
+                    .getPayload();
+        } catch (Exception ignored) {
+            throw new RefreshException();
+        }
 
 //        TODO: Add blacklisting
 

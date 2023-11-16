@@ -11,6 +11,7 @@ import java.util.Date;
 @Builder
 public class WorkoutRecordCreateRequest {
     private String workoutId;
+    private String workoutTitle;
     private int duration; // In seconds
     private String[] exerciseRecordIds;
 }

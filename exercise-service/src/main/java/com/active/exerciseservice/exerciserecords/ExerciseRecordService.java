@@ -29,6 +29,7 @@ public class ExerciseRecordService {
         List<ExerciseRecord> exerciseRecordList = new ArrayList<>();
 
         for (ExerciseRecordRequest request : exerciseRecordRequests){
+            log.info(convertFromDTO(request).toString());
             exerciseRecordList.add(convertFromDTO(request));
         }
 
@@ -39,12 +40,14 @@ public class ExerciseRecordService {
         if(exerciseRecordRequest.isTimeBased()){
             return new ExerciseRecordCardio(
                     exerciseRecordRequest.getExerciseId(),
+                    exerciseRecordRequest.getExerciseName(),
                     true,
                     exerciseRecordRequest.getTime()
             );
         } else {
             return new ExerciseRecordWeight(
                     exerciseRecordRequest.getExerciseId(),
+                    exerciseRecordRequest.getExerciseName(),
                     false,
                     exerciseRecordRequest.getReps(),
                     exerciseRecordRequest.getWeight()
@@ -52,7 +55,7 @@ public class ExerciseRecordService {
         }
     }
 
-    public List<ExerciseRecord> getExerciseRecords(List<Long> recordIds) {
+    public List<ExerciseRecord> getExerciseRecords(List<String> recordIds) {
         return exerciseRecordRepository.findAllById(recordIds);
     }
 }

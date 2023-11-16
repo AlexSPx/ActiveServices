@@ -33,7 +33,7 @@ public class ExerciseRecordController {
 
     @PostMapping("/get-all")
     @ResponseStatus(HttpStatus.OK)
-    public List<ExerciseRecord> getExerciseRecords(@RequestBody List<Long> recordIds){
+    public List<ExerciseRecord> getExerciseRecords(@RequestBody List<String> recordIds){
         return exerciseRecordService.getExerciseRecords(recordIds);
     }
 }
