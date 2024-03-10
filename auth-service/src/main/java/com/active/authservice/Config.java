@@ -8,12 +8,10 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 public class Config {
-
     @Bean
     public GoogleIdTokenVerifier getGoogleIdTokenVerifier() {
         return new GoogleIdTokenVerifier
                 .Builder(new NetHttpTransport(), new GsonFactory())
-                .setIssuer("com.alexspx.active")
                 .build();
     }
 }
