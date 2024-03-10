@@ -9,6 +9,7 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -28,15 +29,19 @@ import java.util.Date;
 @Service
 @Slf4j
 public class TokenService {
-
     private final KeyPair keyPair;
 
-    public TokenService(@Value("${keystore.password}") String keystorePassword) throws KeyStoreException, CertificateException, IOException, NoSuchAlgorithmException, UnrecoverableKeyException {
+    public TokenService(KeyPair keyPair) {
+        this.keyPair = keyPair;
+    }
+
+    @Autowired
+    public TokenService(@Value("${keystore.password}") String keystorePassword)
+            throws KeyStoreException, CertificateException, IOException, NoSuchAlgorithmException, UnrecoverableKeyException {
         char[] keystorePasswordBytes = keystorePassword.toCharArray();
 
         KeyStore keyStore = KeyStore.getInstance("JKS");
 
-        ClassLoader classLoader = getClass().getClassLoader();
         try (InputStream fis = TokenService.class.getResourceAsStream("/keystore.p12")) {
             keyStore.load(fis, keystorePasswordBytes);
         }

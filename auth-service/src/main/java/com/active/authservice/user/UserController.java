@@ -1,5 +1,6 @@
 package com.active.authservice.user;
 
+import com.active.authservice.user.dto.ConnectGoogleAccountRequest;
 import com.active.authservice.user.dto.IdTokenRequest;
 import com.active.authservice.user.dto.TokenPairResponse;
 import com.active.authservice.user.dto.UserLoginRequest;
@@ -10,6 +11,7 @@ import com.active.authservice.user.exceptions.EmailNotFoundException;
 import com.active.authservice.user.exceptions.WrongPasswordException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -25,7 +27,6 @@ import java.security.GeneralSecurityException;
 @RequestMapping("/api/auth/user")
 @RequiredArgsConstructor
 public class UserController {
-
     private final UserService userService;
 
     @GetMapping("/me")
@@ -59,6 +60,15 @@ public class UserController {
     @ResponseStatus(HttpStatus.CREATED)
     public TokenPairResponse loginGoogleUser(@RequestBody IdTokenRequest idTokenString)
             throws GeneralSecurityException, IOException {
-        return userService.createGoogleUser(idTokenString.getIdToken());
+        return userService.loginGoogleUser(idTokenString.getIdToken());
+    }
+
+    @PostMapping("/google/connect")
+    @ResponseStatus(HttpStatus.OK)
+    public ResponseEntity<String> connectGoogleAccount(@RequestBody ConnectGoogleAccountRequest request)
+            throws GeneralSecurityException, IOException {
+        userService.connectGoogleAccount(request.getToken(), request.getGidToken());
+
+        return ResponseEntity.ok("Google account connected");
     }
 }
