@@ -1,7 +1,6 @@
 package com.active.workoutservice.workout.dto;
 
-import com.active.workoutservice.workout.models.WorkoutStructure;
-import com.active.workoutservice.workoutrecord.WorkoutRecord;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -10,6 +9,8 @@ import lombok.Data;
 @AllArgsConstructor
 @Builder
 public class WorkoutCreateRequest {
+    @NotNull(message = "Workout must contain exercises")
     private String[] workoutStructureRecords;
+    @NotNull(message = "Workout title must be present")
     private String title;
 }

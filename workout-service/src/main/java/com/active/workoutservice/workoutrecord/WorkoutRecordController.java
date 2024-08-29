@@ -2,6 +2,7 @@ package com.active.workoutservice.workoutrecord;
 
 import com.active.workoutservice.workoutrecord.dto.WorkoutRecordCreateRequest;
 import com.active.workoutservice.workoutrecord.exceptions.WorkoutRecordNotFoundException;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -25,7 +26,7 @@ public class WorkoutRecordController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public String createRecord(@RequestBody WorkoutRecordCreateRequest workoutRecordCreateRequest,
+    public String createRecord(@RequestBody @Valid WorkoutRecordCreateRequest workoutRecordCreateRequest,
                                @RequestHeader("uid") String uid) {
         return workoutRecordService.create(workoutRecordCreateRequest, uid);
     }

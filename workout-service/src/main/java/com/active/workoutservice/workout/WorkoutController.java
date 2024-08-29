@@ -3,6 +3,7 @@ package com.active.workoutservice.workout;
 import com.active.workoutservice.workout.dto.WorkoutCreateRequest;
 import com.active.workoutservice.workout.exceptions.WorkoutNotFoundException;
 import com.active.workoutservice.workout.models.Workout;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -26,7 +27,7 @@ public class WorkoutController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public String createWorkout(@RequestBody WorkoutCreateRequest workoutCreateRequest,
+    public String createWorkout(@RequestBody @Valid WorkoutCreateRequest workoutCreateRequest,
                                 @RequestHeader("uid") String uid) {
         return workoutService.create(workoutCreateRequest, uid);
     }

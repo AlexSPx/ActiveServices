@@ -5,6 +5,7 @@ import com.active.workoutservice.workout.exceptions.WorkoutNotFoundException;
 import com.active.workoutservice.workout.models.Workout;
 import com.active.workoutservice.workout.models.WorkoutStructure;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -13,6 +14,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.List;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class WorkoutService {
