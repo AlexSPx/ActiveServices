@@ -16,7 +16,6 @@
     <version>1.0-SNAPSHOT</version>
     <packaging>pom</packaging>
     <modules>
-        <module>exercise-service</module>
         <module>discovery-server</module>
         <module>api-gateway</module>
         <module>auth-service</module>

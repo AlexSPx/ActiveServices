@@ -1,4 +1,4 @@
-package com.active.workoutservice;
+package com.active;
 
 
 import org.springframework.boot.SpringApplication;
