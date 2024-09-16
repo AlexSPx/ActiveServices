@@ -22,7 +22,7 @@ jobs:
       - name: Create keystore.p12
         run: |
           mkdir -p auth-service/src/main/resources
-          echo "${{ secrets.KEYSTORE }}" > /src/main/resources/keystore.p12
+          echo "${{ secrets.KEYSTORE }}" > auth-service/src/main/resources/keystore.p12
 
       - name: Set up JDK 17
         uses: actions/setup-java@v3
