@@ -63,3 +63,10 @@ volumes:
 networks:
   net:
     driver: bridge
+secrets:
+  mongodb_uri:
+    file: ./mongodb_uri.txt
+  dns_secret:
+    file: ./dns_secret.txt
+  keystore_password:
+    file: ./keystore_password.txt
