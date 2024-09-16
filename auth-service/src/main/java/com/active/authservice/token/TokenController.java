@@ -6,6 +6,7 @@ import com.active.authservice.token.exceptions.TokenException;
 import com.active.authservice.token.exceptions.TokenIssuerException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -22,8 +23,9 @@ public class TokenController {
 
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
-    public String validateToken(@RequestHeader("Authorization") String token) throws TokenIssuerException {
-        return tokenService.validateToken(token);
+    public ResponseEntity<?> validateToken(@RequestHeader("Authorization") String token) throws TokenIssuerException {
+        String uid = tokenService.validateToken(token);
+        return ResponseEntity.ok().header("uid", uid).build();
     }
 
     @PostMapping("/refresh")

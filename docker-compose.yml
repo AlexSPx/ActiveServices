@@ -1,0 +1,65 @@
+version: '3.8'
+
+services:
+  # Auth service
+  auth-service:
+    image: alexspx/active-auth_service
+    container_name: auth-service
+    environment:
+      - SPRING_DATA_MONGODB_URI=/run/secrets/mongodb_uri
+      - KEYSTORE_PASSWORD=/run/secrets/keystore_password
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.auth-service.rule=Host(`${/run/secrets/dns_secret}`) && PathPrefix(`/api/auth`)"
+      - "traefik.http.routers.auth-service.entrypoints=websecure"
+      - "traefik.http.routers.auth-service.tls.certresolver=myresolver"
+    networks:
+      - net
+
+  # Workout service
+  workout-service:
+    image: alexspx/active-workout_service
+    container_name: workout-service
+    environment:
+      - SPRING_DATA_MONGODB_URI=/run/secrets/mongodb_uri
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.workout-service.rule=Host(`${/run/secrets/dns_secret}`) && (PathPrefix(`/api/exercise`) || PathPrefix(`/api/workout`))"
+      - "traefik.http.routers.workout-service.middlewares=auth-middleware"
+      - "traefik.http.routers.workout-service.entrypoints=websecure"
+      - "traefik.http.routers.workout-service.tls.certresolver=myresolver"
+    networks:
+      - net
+
+  # Traefik service (load balancer)
+  traefik:
+    image: traefik:v2.9
+    container_name: traefik
+    command:
+      - "--api.insecure=true"
+      - "--providers.docker=true"
+      - "--entryPoints.websecure.address=:443"
+      - "--certificatesresolvers.myresolver.acme.tlschallenge=true"
+      - "--certificatesresolvers.myresolver.acme.email=alexspx@hotmail.com"
+      - "--certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json"
+    ports:
+      - "80:80"
+      - "443:443"
+      - "8080:8080" # Traefik dashboard
+    volumes:
+      - "letsencrypt:/letsencrypt"
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+    networks:
+      - net
+    labels:
+      # Define the middleware on the Traefik service
+      - "traefik.http.middlewares.auth-middleware.forwardauth.address=http://auth-service:8080/api/auth/token"
+      - "traefik.http.middlewares.auth-middleware.forwardauth.trustForwardHeader=true"
+      - "traefik.http.middlewares.auth-middleware.forwardauth.authResponseHeaders=uid"
+
+volumes:
+  letsencrypt:
+
+networks:
+  net:
+    driver: bridge

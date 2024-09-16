@@ -1,0 +1,56 @@
+name: Java Docker CI/CD
+
+on:
+  push:
+    branches:
+      - single-node-prod
+  pull_request:
+    branches:
+      - single-node-prod
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      # Cache Maven dependencies for faster builds
+      - name: Cache Maven packages
+        uses: actions/cache@v3
+        with:
+          path: ~/.m2
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+
+      # Build the Auth Service with Maven
+      - name: Build Auth Service
+        run: mvn -f auth-service/pom.xml clean install
+
+      # Build the Workout Service with Maven
+      - name: Build Workout Service
+        run: mvn -f workout-service/pom.xml clean install
+
+      # Build Docker images
+      - name: Build Docker images
+        run: |
+          docker build -t docker.io/${{ secrets.DOCKERHUB_USERNAME }}/active-auth_service:latest ./auth-service
+          docker build -t docker.io/${{ secrets.DOCKERHUB_USERNAME }}/active-workout_service:latest ./workout-service
+
+      # Log in to Docker Hub
+      - name: Log in to Docker Hub
+        run: echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
+
+      # Push Docker images to Docker Hub
+      - name: Push Docker images
+        run: |
+          docker push docker.io/${{ secrets.DOCKERHUB_USERNAME }}/active-auth_service:latest
+          docker push docker.io/${{ secrets.DOCKERHUB_USERNAME }}/active-workout_service:latest

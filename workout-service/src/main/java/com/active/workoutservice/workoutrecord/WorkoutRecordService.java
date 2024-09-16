@@ -36,7 +36,7 @@ public class WorkoutRecordService {
     }
 
     public List<WorkoutRecord> getByUser(String uid, int offset, int limit) {
-        Pageable page = PageRequest.of(offset, limit, Sort.by("createdAt").descending());
+        Pageable page = PageRequest.of(offset, limit, Sort.by("createdAt").ascending());
         return workoutRecordRepository.findByUid(uid, page).getContent();
     }
 }
