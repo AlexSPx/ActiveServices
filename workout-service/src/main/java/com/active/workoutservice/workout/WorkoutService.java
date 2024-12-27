@@ -1,6 +1,5 @@
 package com.active.workoutservice.workout;
 
-import com.active.workoutservice.workout.dto.WorkoutCreateRequest;
 import com.active.workoutservice.workout.exceptions.WorkoutNotFoundException;
 import com.active.workoutservice.workout.models.Workout;
 import com.active.workoutservice.workout.models.WorkoutStructure;
@@ -25,15 +24,15 @@ public class WorkoutService {
         return workoutRepository.findByCreatedBy(uid, page).getContent();
     }
 
-    public String create(WorkoutCreateRequest workoutCreateRequest, String uid) {
+    public String create(String[] workoutStructureRecords, String title, String uid) {
         WorkoutStructure workoutStructure = WorkoutStructure.builder()
-                .exerciseRecordIds(workoutCreateRequest.getWorkoutStructureRecords())
+                .exerciseRecordIds(workoutStructureRecords)
                 .build();
 
         Workout workout = Workout.builder()
                 .createdBy(uid)
                 .workoutStructure(workoutStructure)
-                .title(workoutCreateRequest.getTitle())
+                .title(title)
                 .createdAt(LocalDateTime.now())
                 .updatedAt(LocalDateTime.now())
                 .build();

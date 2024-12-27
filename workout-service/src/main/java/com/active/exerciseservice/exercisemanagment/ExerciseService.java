@@ -1,7 +1,5 @@
 package com.active.exerciseservice.exercisemanagment;
 
-import com.active.exerciseservice.exercisemanagment.dto.ExerciseRequest;
-import com.active.exerciseservice.exercisemanagment.dto.ExerciseResponse;
 import com.active.exerciseservice.exercisemanagment.repository.ExerciseRepository;
 import com.active.exerciseservice.types.BodyPart;
 import com.active.exerciseservice.types.ExerciseType;
@@ -23,15 +21,7 @@ public class ExerciseService {
 
     private final ExerciseRepository exerciseRepository;
 
-    public String createExercise(ExerciseRequest exerciseRequest) {
-        ExerciseModel exercise = ExerciseModel.builder()
-                .title(exerciseRequest.getTitle())
-                .description(exerciseRequest.getDescription())
-                .type(exerciseRequest.getType())
-                .level(exerciseRequest.getLevel())
-                .bodyPart(exerciseRequest.getBodyPart())
-                .build();
-
+    public String createExercise(ExerciseModel exercise) {
         String exerciseId = exerciseRepository.save(exercise).getId();
 
         log.info("Exercise {} - {} is saved", exercise.getId(), exercise.getTitle());
@@ -39,28 +29,15 @@ public class ExerciseService {
         return exerciseId;
     }
 
-    public List<ExerciseResponse> getAllExercises() {
-        List<ExerciseModel> exercises = exerciseRepository.findAll();
-
-        return exercises.stream().map(this::mapToExerciseResponse).toList();
-    }
-
-    private ExerciseResponse mapToExerciseResponse(ExerciseModel exercise) {
-        return ExerciseResponse.builder()
-                .id(exercise.getId())
-                .title(exercise.getTitle())
-                .description(exercise.getDescription())
-                .type(exercise.getType().toString())
-                .level(exercise.getLevel().toString())
-                .bodyPart(exercise.getBodyPart().toString())
-                .build();
+    public List<ExerciseModel> getAllExercises() {
+        return exerciseRepository.findAll();
     }
 
     public List<ExerciseModel> getAllByIds(List<String> ids) {
         return exerciseRepository.findAllById(ids);
     }
 
-    public List<ExerciseResponse> searchExercises(String title,
+    public List<ExerciseModel> searchExercises(String title,
                                                   String description,
                                                   ExerciseType type,
                                                   BodyPart bodyPart,
@@ -73,6 +50,6 @@ public class ExerciseService {
         Page<ExerciseModel> exercises = exerciseRepository.
                 findByCriteria(title, description, type, bodyPart, level, page);
 
-        return exercises.stream().map(this::mapToExerciseResponse).toList();
+        return exercises.getContent();
     }
 }

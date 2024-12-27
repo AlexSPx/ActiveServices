@@ -1,12 +1,12 @@
 package com.active.exerciseservice.exerciserecords.model;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
+import lombok.*;
+import lombok.experimental.SuperBuilder;
 
 @EqualsAndHashCode(callSuper = true)
+@ToString(callSuper = true)
 @Data
+@SuperBuilder
 @AllArgsConstructor
 @NoArgsConstructor
 public class ExerciseRecordCardio extends ExerciseRecord {

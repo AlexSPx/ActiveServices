@@ -1,10 +1,7 @@
 package com.active.authservice.user;
 
+import com.active.authservice.token.TokenPair;
 import com.active.authservice.token.TokenService;
-import com.active.authservice.user.dto.TokenPairResponse;
-import com.active.authservice.user.dto.UserLoginRequest;
-import com.active.authservice.user.dto.UserMeResponse;
-import com.active.authservice.user.dto.UserRegisterRequest;
 import com.active.authservice.user.exceptions.AuthenticationException;
 import com.active.authservice.user.exceptions.EmailAlreadyInUseException;
 import com.active.authservice.user.exceptions.EmailNotFoundException;
@@ -33,20 +30,7 @@ public class UserService {
     private final BCryptPasswordEncoder encoder;
     private final GoogleIdTokenVerifier verifier;
 
-    private Payload validateToken(String idTokenString) throws GeneralSecurityException, IOException {
-        if(idTokenString == null || idTokenString.isBlank()) {
-            throw new IllegalArgumentException("idTokenString cannot be null or blank");
-        }
-
-        GoogleIdToken idToken = verifier.verify(idTokenString);
-        if (idToken == null) {
-            throw new InvalidGoogleIdTokenException();
-        }
-
-        return idToken.getPayload();
-    }
-
-    public UserMeResponse getMe(String token) {
+    public UserMe getMe(String token) {
         if(token == null || token.isBlank()) {
             throw new IllegalArgumentException("token cannot be null or blank");
         }
@@ -56,7 +40,7 @@ public class UserService {
            throw new UserNotFoundException();
        }
 
-       return UserMeResponse.builder()
+       return UserMe.builder()
                .id(user.get().getId())
                .gid(user.get().getGid())
                .email(user.get().getEmail())
@@ -67,50 +51,38 @@ public class UserService {
                .build();
     }
 
-    public TokenPairResponse createUser(UserRegisterRequest userRegisterRequest) throws EmailAlreadyInUseException {
-        if(userRegisterRequest == null) {
+    public TokenPair createUser(UserModel userModel) throws EmailAlreadyInUseException {
+        if(userModel == null) {
             throw new IllegalArgumentException("userRegisterRequest cannot be null");
         }
 
-        if (userRepository.existsByEmail(userRegisterRequest.getEmail())) {
+        if (userRepository.existsByEmail(userModel.getEmail())) {
             throw new EmailAlreadyInUseException();
         }
 
-        String hashedPassword = encoder.encode(userRegisterRequest.getPassword());
+        String hashedPassword = encoder.encode(userModel.getPassword());
+        userModel.setPassword(hashedPassword);
 
-        UserModel user = UserModel.builder()
-                .username(userRegisterRequest.getUsername())
-                .firstname(userRegisterRequest.getFirstname())
-                .gid(null)
-                .lastname(userRegisterRequest.getLastname())
-                .email(userRegisterRequest.getEmail())
-                .password(hashedPassword)
-                .build();
-
-        UserModel createdUser = userRepository.save(user);
+        UserModel createdUser = userRepository.save(userModel);
 
         return tokenService.generateTokenPair(createdUser.getId());
     }
 
-    public TokenPairResponse loginUser(UserLoginRequest userLoginRequest)
+    public TokenPair loginUser(String email, String password)
             throws EmailNotFoundException, WrongPasswordException {
-        if(userLoginRequest == null) {
-            throw new IllegalArgumentException("userRegisterRequest cannot be null");
-        }
-
-        Optional<UserModel> user = userRepository.findByEmail(userLoginRequest.getEmail());
+        Optional<UserModel> user = userRepository.findByEmail(email);
         if (user.isEmpty()) {
             throw new EmailNotFoundException();
         }
 
-        if (!encoder.matches(userLoginRequest.getPassword(), user.get().getPassword())) {
+        if (!encoder.matches(password, user.get().getPassword())) {
             throw new WrongPasswordException();
         }
 
         return tokenService.generateTokenPair(user.get().getId());
     }
 
-    public TokenPairResponse createGoogleUser(String idTokenString)
+    public TokenPair createGoogleUser(String idTokenString)
             throws GeneralSecurityException, IOException, InvalidGoogleIdTokenException {
        if (idTokenString == null || idTokenString.isBlank()) {
            throw new IllegalArgumentException("idTokenString cannot be null or blank");
@@ -134,7 +106,7 @@ public class UserService {
         return tokenService.generateTokenPair(createdUser.getId());
     }
 
-    public TokenPairResponse loginGoogleUser(String idTokenString)
+    public TokenPair loginGoogleUser(String idTokenString)
             throws GeneralSecurityException, IOException, GoogleUserDoesNotExistException {
         Payload payload = validateToken(idTokenString);
 
@@ -167,5 +139,18 @@ public class UserService {
 
         user.setGid(gid);
         userRepository.save(user);
+    }
+
+    private Payload validateToken(String idTokenString) throws GeneralSecurityException, IOException {
+        if(idTokenString == null || idTokenString.isBlank()) {
+            throw new IllegalArgumentException("idTokenString cannot be null or blank");
+        }
+
+        GoogleIdToken idToken = verifier.verify(idTokenString);
+        if (idToken == null) {
+            throw new InvalidGoogleIdTokenException();
+        }
+
+        return idToken.getPayload();
     }
 }

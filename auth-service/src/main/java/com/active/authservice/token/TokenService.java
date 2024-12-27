@@ -1,10 +1,8 @@
 package com.active.authservice.token;
 
-import com.active.authservice.token.dto.TokenRefreshResponse;
 import com.active.authservice.token.exceptions.RefreshException;
 import com.active.authservice.token.exceptions.TokenException;
 import com.active.authservice.token.exceptions.TokenIssuerException;
-import com.active.authservice.user.dto.TokenPairResponse;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
@@ -31,12 +29,8 @@ import java.util.Date;
 public class TokenService {
     private final KeyPair keyPair;
 
-    public TokenService(KeyPair keyPair) {
-        this.keyPair = keyPair;
-    }
-
     @Autowired
-    public TokenService(@Value("${keystore.password}") String keystorePassword)
+    public TokenService(@Value("${keystore.password:123456}") String keystorePassword)
             throws KeyStoreException, CertificateException, IOException, NoSuchAlgorithmException, UnrecoverableKeyException {
         char[] keystorePasswordBytes = keystorePassword.toCharArray();
 
@@ -52,8 +46,8 @@ public class TokenService {
         );
     }
 
-    public TokenPairResponse generateTokenPair(String uid) {
-        return TokenPairResponse.builder()
+    public TokenPair generateTokenPair(String uid) {
+        return TokenPair.builder()
                 .token(generateJWT(uid))
                 .refresh(generateRefresh(uid))
                 .build();
@@ -78,7 +72,7 @@ public class TokenService {
                 .compact();
     }
 
-    public TokenRefreshResponse refreshToken(String refresh) {
+    public String refreshToken(String refresh) {
         Claims claims;
 
         try {
@@ -94,9 +88,7 @@ public class TokenService {
 
 //        TODO: Add blacklisting
 
-        return TokenRefreshResponse.builder()
-                .token(generateJWT(claims.getSubject()))
-                .build();
+        return generateJWT(claims.getSubject());
     }
 
     public String validateToken(String token) throws TokenIssuerException, ExpiredJwtException {

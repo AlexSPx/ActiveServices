@@ -11,7 +11,6 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @AllArgsConstructor
 @NoArgsConstructor
 @SuperBuilder
-@Builder
 @Data
 public class ExerciseRecord {
     private String id;
