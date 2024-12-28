@@ -7,11 +7,15 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
+import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 
 import java.security.KeyPair;
 import java.time.Instant;
@@ -21,19 +25,21 @@ import java.util.Date;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
+@SpringBootTest(classes = TokenService.class)
+@RequiredArgsConstructor(onConstructor = @__(@Autowired))
 class TokenServiceTest {
 
-    @Mock
+    @MockBean
     private KeyPairProvider keyPairProvider;
 
-    @InjectMocks
-    private TokenService tokenService;
+
+    private final TokenService tokenService;
 
     private KeyPair keyPair;
 
     @BeforeEach
+    @SuppressWarnings("deprecation")
     void setUp() {
-        MockitoAnnotations.openMocks(this);
         keyPair = Keys.keyPairFor(io.jsonwebtoken.SignatureAlgorithm.RS256);
         when(keyPairProvider.getKeyPair()).thenReturn(keyPair);
     }
