@@ -7,7 +7,6 @@ import com.active.authservice.user.exceptions.EmailNotFoundException;
 import com.active.authservice.user.exceptions.WrongPasswordException;
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier;
 import lombok.RequiredArgsConstructor;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
