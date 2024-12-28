@@ -141,7 +141,7 @@ class TokenServiceTest {
                 .compact();
 
         TokenException e = assertThrows(TokenException.class, () -> tokenService.validateToken(token));
-        assertTrue(e.getCause() instanceof ExpiredJwtException);
+        assertInstanceOf(ExpiredJwtException.class, e.getCause());
     }
 
     @Test

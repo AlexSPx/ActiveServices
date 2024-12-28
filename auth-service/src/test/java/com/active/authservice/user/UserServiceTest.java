@@ -33,6 +33,7 @@ class UserServiceTest {
     private BCryptPasswordEncoder encoder;
 
     @MockBean
+    @SuppressWarnings("unused")
     private GoogleIdTokenVerifier verifier;
 
     private final UserService userService;
