@@ -6,8 +6,10 @@ import com.active.authservice.user.exceptions.EmailAlreadyInUseException;
 import com.active.authservice.user.exceptions.EmailNotFoundException;
 import com.active.authservice.user.exceptions.WrongPasswordException;
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier;
+import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -19,6 +21,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 @SpringBootTest(classes = UserService.class)
+@RequiredArgsConstructor(onConstructor = @__(@Autowired))
 class UserServiceTest {
 
     @MockBean
@@ -33,12 +36,7 @@ class UserServiceTest {
     @MockBean
     private GoogleIdTokenVerifier verifier;
 
-    private UserService userService;
-
-    @BeforeEach
-    void setUp() {
-        userService = new UserService(userRepository, tokenService, encoder, verifier);
-    }
+    private final UserService userService;
 
     @Test
     void testGetMe_ValidToken() {
