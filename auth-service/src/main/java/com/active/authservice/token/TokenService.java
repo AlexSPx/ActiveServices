@@ -6,45 +6,19 @@ import com.active.authservice.token.exceptions.TokenIssuerException;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.security.KeyPair;
-import java.security.KeyStore;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
-import java.security.PrivateKey;
-import java.security.UnrecoverableKeyException;
-import java.security.cert.CertificateException;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Date;
 
 @Service
 @Slf4j
+@RequiredArgsConstructor
 public class TokenService {
-    private final KeyPair keyPair;
-
-    @Autowired
-    public TokenService(@Value("${keystore.password:123456}") String keystorePassword)
-            throws KeyStoreException, CertificateException, IOException, NoSuchAlgorithmException, UnrecoverableKeyException {
-        char[] keystorePasswordBytes = keystorePassword.toCharArray();
-
-        KeyStore keyStore = KeyStore.getInstance("JKS");
-
-        try (InputStream fis = TokenService.class.getResourceAsStream("/keystore.p12")) {
-            keyStore.load(fis, keystorePasswordBytes);
-        }
-
-        this.keyPair = new KeyPair(
-                keyStore.getCertificate("mykey").getPublicKey(),
-                (PrivateKey) keyStore.getKey("mykey", keystorePasswordBytes)
-        );
-    }
+    private final KeyPairProvider keyPairProvider;
 
     public TokenPair generateTokenPair(String uid) {
         return TokenPair.builder()
@@ -59,7 +33,7 @@ public class TokenService {
                 .subject(uid)
                 .claim("createdOn", new Date())
                 .expiration(Date.from(Instant.now().plus(1, ChronoUnit.HOURS)))
-                .signWith(keyPair.getPrivate())
+                .signWith(keyPairProvider.getKeyPair().getPrivate())
                 .compact();
     }
 
@@ -68,7 +42,7 @@ public class TokenService {
                 .issuer("active")
                 .subject(uid)
                 .expiration(Date.from(Instant.now().plus(365, ChronoUnit.DAYS)))
-                .signWith(keyPair.getPrivate())
+                .signWith(keyPairProvider.getKeyPair().getPrivate())
                 .compact();
     }
 
@@ -77,8 +51,8 @@ public class TokenService {
 
         try {
             claims = Jwts.parser()
-                    .verifyWith(keyPair.getPublic())
-                    .decryptWith(keyPair.getPrivate())
+                    .verifyWith(keyPairProvider.getKeyPair().getPublic())
+                    .decryptWith(keyPairProvider.getKeyPair().getPrivate())
                     .build()
                     .parseSignedClaims(refresh)
                     .getPayload();
@@ -96,13 +70,13 @@ public class TokenService {
 
         try {
             claims = Jwts.parser()
-                    .verifyWith(keyPair.getPublic())
-                    .decryptWith(keyPair.getPrivate())
+                    .verifyWith(keyPairProvider.getKeyPair().getPublic())
+                    .decryptWith(keyPairProvider.getKeyPair().getPrivate())
                     .build()
                     .parseSignedClaims(token)
                     .getPayload();
-        } catch (Exception ignored) {
-            throw new TokenException();
+        } catch (Exception e) {
+            throw new TokenException(e);
         }
 
         if (!claims.getIssuer().equals("active")) {

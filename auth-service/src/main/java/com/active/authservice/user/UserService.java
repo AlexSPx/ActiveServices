@@ -13,6 +13,9 @@ import com.active.authservice.user.exceptions.WrongPasswordException;
 import com.google.api.client.auth.openidconnect.IdToken.Payload;
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -30,11 +33,7 @@ public class UserService {
     private final BCryptPasswordEncoder encoder;
     private final GoogleIdTokenVerifier verifier;
 
-    public UserMe getMe(String token) {
-        if(token == null || token.isBlank()) {
-            throw new IllegalArgumentException("token cannot be null or blank");
-        }
-
+    public UserMe getMe(@NonNull @NotBlank String token) {
        Optional<UserModel> user = userRepository.findById(tokenService.validateToken(token));
        if (user.isEmpty()) {
            throw new UserNotFoundException();
@@ -51,11 +50,7 @@ public class UserService {
                .build();
     }
 
-    public TokenPair createUser(UserModel userModel) throws EmailAlreadyInUseException {
-        if(userModel == null) {
-            throw new IllegalArgumentException("userRegisterRequest cannot be null");
-        }
-
+    public TokenPair createUser(@NotNull UserModel userModel) throws EmailAlreadyInUseException {
         if (userRepository.existsByEmail(userModel.getEmail())) {
             throw new EmailAlreadyInUseException();
         }
