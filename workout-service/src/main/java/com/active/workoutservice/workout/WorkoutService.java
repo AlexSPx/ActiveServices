@@ -37,7 +37,7 @@ public class WorkoutService {
                 .updatedAt(LocalDateTime.now())
                 .build();
 
-        return workoutRepository.insert(workout).getId();
+        return workoutRepository.save(workout).getId();
     }
 
     public Workout getById(String id) throws WorkoutNotFoundException {
