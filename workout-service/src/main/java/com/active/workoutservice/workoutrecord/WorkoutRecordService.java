@@ -24,7 +24,15 @@ public class WorkoutRecordService {
     }
 
     public List<WorkoutRecord> getByUser(String uid, int offset, int limit) {
-        Pageable page = PageRequest.of(offset, limit, Sort.by("createdAt").descending());
+        if (uid == null || uid.isBlank()) {
+            throw new IllegalArgumentException("User ID cannot be null or blank");
+        }
+        Pageable page = createPageable(offset, limit);
         return workoutRecordRepository.findByUid(uid, page).getContent();
     }
+
+    private Pageable createPageable(int offset, int limit) {
+        return PageRequest.of(offset, limit, Sort.by("createdAt").descending());
+    }
+
 }
