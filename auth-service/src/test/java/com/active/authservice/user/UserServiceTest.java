@@ -5,6 +5,8 @@ import com.active.authservice.token.TokenService;
 import com.active.authservice.user.exceptions.EmailAlreadyInUseException;
 import com.active.authservice.user.exceptions.EmailNotFoundException;
 import com.active.authservice.user.exceptions.WrongPasswordException;
+import com.active.models.User;
+import com.active.repository.UserRepository;
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier;
 import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.Test;
@@ -43,7 +45,7 @@ class UserServiceTest {
         // Arrange
         String token = "validToken";
         String userId = "userId";
-        UserModel userModel = UserModel.builder()
+        User userModel = User.builder()
                 .id(userId)
                 .email("test@example.com")
                 .username("testuser")
@@ -78,7 +80,7 @@ class UserServiceTest {
     @Test
     void testCreateUser_EmailAlreadyExists() {
         // Arrange
-        UserModel userModel = UserModel.builder()
+        User userModel = User.builder()
                 .email("existing@example.com")
                 .password("password")
                 .build();
@@ -92,7 +94,7 @@ class UserServiceTest {
     @Test
     void testCreateUser_Success() {
         // Arrange
-        UserModel userModel = UserModel.builder()
+        User userModel = User.builder()
                 .email("new@example.com")
                 .password("password")
                 .build();
@@ -100,7 +102,7 @@ class UserServiceTest {
         String hashedPassword = "hashedPassword";
         when(userRepository.existsByEmail(userModel.getEmail())).thenReturn(false);
         when(encoder.encode(userModel.getPassword())).thenReturn(hashedPassword);
-        when(userRepository.save(any(UserModel.class))).thenReturn(userModel);
+        when(userRepository.save(any(User.class))).thenReturn(userModel);
         when(tokenService.generateTokenPair(any())).thenReturn(new TokenPair("accessToken", "refreshToken"));
 
         // Act
@@ -128,7 +130,7 @@ class UserServiceTest {
         // Arrange
         String email = "test@example.com";
         String password = "wrongPassword";
-        UserModel userModel = UserModel.builder()
+        User userModel = User.builder()
                 .email(email)
                 .password("hashedPassword")
                 .build();
@@ -145,7 +147,7 @@ class UserServiceTest {
         // Arrange
         String email = "test@example.com";
         String password = "correctPassword";
-        UserModel userModel = UserModel.builder()
+        User userModel = User.builder()
                 .email(email)
                 .password("hashedPassword")
                 .build();

@@ -1,5 +1,7 @@
 package com.active.workoutservice.workoutrecord;
 
+import com.active.models.workout.WorkoutRecord;
+import com.active.repository.WorkoutRecordRepository;
 import com.active.workoutservice.workoutrecord.exceptions.WorkoutRecordNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
@@ -28,7 +30,7 @@ public class WorkoutRecordService {
             throw new IllegalArgumentException("User ID cannot be null or blank");
         }
         Pageable page = createPageable(offset, limit);
-        return workoutRecordRepository.findByUid(uid, page).getContent();
+        return workoutRecordRepository.findAllByWorkout_User_Id(uid, page).getContent();
     }
 
     private Pageable createPageable(int offset, int limit) {

@@ -1,8 +1,8 @@
 package com.active.exerciseservice.exerciserecords;
 
-import com.active.exerciseservice.exerciserecords.model.ExerciseRecord;
-import com.active.exerciseservice.exerciserecords.model.ExerciseRecordCardio;
-import com.active.exerciseservice.exerciserecords.model.ExerciseRecordWeight;
+import com.active.models.ExerciseRecord;
+import com.active.models.ExerciseRecordCardio;
+import com.active.models.ExerciseRecordWeight;
 
 public class ExerciseRecordFactory {
     public static ExerciseRecord createExerciseRecord(

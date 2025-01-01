@@ -1,9 +1,9 @@
-package com.active.exerciseservice.types;
+package com.active.models.exercise;
 
-public enum BodyPart {
+public enum Muscle {
     ABDOMINALS,
-    ADDUCTORS,
     ABDUCTORS,
+    ADDUCTORS,
     BICEPS,
     CALVES,
     CHEST,
@@ -15,7 +15,7 @@ public enum BodyPart {
     MIDDLE_BACK,
     NECK,
     QUADRICEPS,
+    SHOULDERS,
     TRAPS,
-    TRICEPS,
-    SHOULDERS
+    TRICEPS
 }

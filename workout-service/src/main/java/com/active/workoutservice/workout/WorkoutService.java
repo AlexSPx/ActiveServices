@@ -1,5 +1,7 @@
 package com.active.workoutservice.workout;
 
+import com.active.models.workout.Workout;
+import com.active.repository.WorkoutRepository;
 import com.active.workoutservice.workout.exceptions.WorkoutNotFoundException;
 import com.active.workoutservice.workout.models.Workout;
 import com.active.workoutservice.workout.models.WorkoutStructure;
@@ -18,10 +20,11 @@ import java.util.List;
 @RequiredArgsConstructor
 public class WorkoutService {
     private final WorkoutRepository workoutRepository;
+    private final
 
     public List<Workout> getByUser(String uid, int offset, int limit) {
         Pageable page = PageRequest.of(offset, limit, Sort.by("createdAt").descending());
-        return workoutRepository.findByCreatedBy(uid, page).getContent();
+        return workoutRepository.findByUser_Id(uid, page).getContent();
     }
 
     public String create(String[] workoutStructureRecords, String title, String uid) {

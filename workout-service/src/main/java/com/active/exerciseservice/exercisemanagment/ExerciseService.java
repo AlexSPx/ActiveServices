@@ -1,9 +1,10 @@
 package com.active.exerciseservice.exercisemanagment;
 
-import com.active.exerciseservice.exercisemanagment.repository.ExerciseRepository;
 import com.active.exerciseservice.types.BodyPart;
 import com.active.exerciseservice.types.ExerciseType;
-import com.active.exerciseservice.types.Level;
+import com.active.models.Exercise;
+import com.active.models.exercise.*;
+import com.active.repository.ExerciseRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -21,34 +22,37 @@ public class ExerciseService {
 
     private final ExerciseRepository exerciseRepository;
 
-    public String createExercise(ExerciseModel exercise) {
-        String exerciseId = exerciseRepository.save(exercise).getId();
+    public Long createExercise(Exercise exercise) {
+        Long exerciseId = exerciseRepository.save(exercise).getId();
 
         log.info("Exercise {} - {} is saved", exercise.getId(), exercise.getTitle());
 
         return exerciseId;
     }
 
-    public List<ExerciseModel> getAllExercises() {
+    public List<Exercise> getAllExercises() {
         return exerciseRepository.findAll();
     }
 
-    public List<ExerciseModel> getAllByIds(List<String> ids) {
+    public List<Exercise> getAllByIds(List<String> ids) {
         return exerciseRepository.findAllById(ids);
     }
 
-    public List<ExerciseModel> searchExercises(String title,
-                                                  String description,
-                                                  ExerciseType type,
-                                                  BodyPart bodyPart,
-                                                  Level level,
-                                                  int offset,
-                                                  int limit) {
+    public List<Exercise> searchExercises(String title,
+                                          Force force,
+                                          Level level,
+                                          Mechanic mechanic,
+                                          Equipment equipment,
+                                          List<Muscle> primaryMuscles,
+                                          List<Muscle> secondaryMuscles,
+                                          Category category,
+                                          int offset,
+                                          int limit) {
         Pageable page = PageRequest
                 .of(offset, limit, Sort.by("title").descending());
 
-        Page<ExerciseModel> exercises = exerciseRepository.
-                findByCriteria(title, description, type, bodyPart, level, page);
+        Page<Exercise> exercises = exerciseRepository.
+                findByCriteria(title, force, level, mechanic, equipment, primaryMuscles, secondaryMuscles, category, page);
 
         return exercises.getContent();
     }

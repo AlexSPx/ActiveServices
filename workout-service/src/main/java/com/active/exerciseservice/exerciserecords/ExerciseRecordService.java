@@ -1,6 +1,7 @@
 package com.active.exerciseservice.exerciserecords;
 
-import com.active.exerciseservice.exerciserecords.model.ExerciseRecord;
+import com.active.models.ExerciseRecord;
+import com.active.repository.ExerciseRecordRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -15,15 +16,15 @@ public class ExerciseRecordService {
 
     private final ExerciseRecordRepository exerciseRecordRepository;
 
-    public String createExerciseRecord(ExerciseRecord exerciseRecord) {
+    public Long createExerciseRecord(ExerciseRecord exerciseRecord) {
         return exerciseRecordRepository.save(exerciseRecord).getId();
     }
 
-    public List<String> createManyExerciseRecords(List<ExerciseRecord> exerciseRecords) {
+    public List<Long> createManyExerciseRecords(List<ExerciseRecord> exerciseRecords) {
         return exerciseRecordRepository.saveAll(exerciseRecords).stream().map(ExerciseRecord::getId).collect(Collectors.toList());
     }
 
-    public List<ExerciseRecord> getExerciseRecords(List<String> recordIds) {
+    public List<ExerciseRecord> getExerciseRecords(List<Long> recordIds) {
         return exerciseRecordRepository.findAllById(recordIds);
     }
 }

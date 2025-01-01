@@ -1,6 +1,5 @@
 package com.active.exerciseservice.exercisemanagment;
 
-import com.active.exerciseservice.exerciserecords.ExerciseRecordRepository;
 import com.active.exerciseservice.exerciserecords.ExerciseRecordService;
 import com.active.exerciseservice.exerciserecords.model.ExerciseRecord;
 import com.active.exerciseservice.exerciserecords.model.ExerciseRecordCardio;

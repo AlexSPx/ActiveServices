@@ -1,7 +1,6 @@
 package com.active.web.endpoints;
 
 import com.active.web.dto.workoutrecord.WorkoutRecordCreateRequest;
-import com.active.workoutservice.workoutrecord.WorkoutRecord;
 import com.active.workoutservice.workoutrecord.WorkoutRecordService;
 import com.active.workoutservice.workoutrecord.exceptions.WorkoutRecordNotFoundException;
 import jakarta.validation.Valid;
