@@ -2,20 +2,14 @@ package com.active.models;
 
 
 import com.active.models.workout.Workout;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
-import jakarta.persistence.Id;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Column;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.CascadeType;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
 import java.util.List;
-
 
 
 @Entity
@@ -24,7 +18,8 @@ import java.util.List;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Table(name = "User")
+@Table(name = "_User")
+@EntityListeners(AuditingEntityListener.class)
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -45,15 +40,13 @@ public class User {
     @Column(nullable = false, length = 50)
     private String lastname;
 
+    @Column(updatable = false)
     @CreatedDate
-    @Column(nullable = false)
     private LocalDateTime createdAt;
 
-    @Column(nullable = false)
+    @Column
     private String password;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Workout> workouts;
-
-    // Getters and Setters
 }

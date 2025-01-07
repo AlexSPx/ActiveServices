@@ -1,10 +1,19 @@
 package com.active.models.workout.template;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 
 import java.util.List;
 
 @Entity
+@Getter
+@SuperBuilder
+@AllArgsConstructor
+@NoArgsConstructor
 @DiscriminatorValue("Weight")
 public class TemplateExerciseWeight extends TemplateExercise {
 
@@ -24,5 +33,4 @@ public class TemplateExerciseWeight extends TemplateExercise {
     @Column(name = "weight")
     private List<Double> weights;
 
-    // Getters and Setters
 }

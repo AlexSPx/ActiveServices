@@ -52,6 +52,11 @@ public class UserService {
                .build();
     }
 
+    public User getUserByid(@NonNull @NotBlank String uid) {
+        return userRepository.findById(uid).orElseThrow(() ->
+                new UserNotFoundException(String.format("User %s not found", uid)));
+    }
+
     public TokenPair createUser(@NotNull User userModel) throws EmailAlreadyInUseException {
         if (userRepository.existsByEmail(userModel.getEmail())) {
             throw new EmailAlreadyInUseException();

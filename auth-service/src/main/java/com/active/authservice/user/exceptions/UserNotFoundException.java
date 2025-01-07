@@ -4,4 +4,8 @@ public class UserNotFoundException extends AuthenticationException {
     public UserNotFoundException() {
         super("User was not found");
     }
+
+    public UserNotFoundException(String message) {
+        super(message);
+    }
 }

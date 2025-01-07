@@ -17,7 +17,6 @@
     <packaging>pom</packaging>
     <modules>
         <module>auth-service</module>
-        <module>workout-service</module>
         <module>web</module>
         <module>active-database</module>
         <module>active-services</module>

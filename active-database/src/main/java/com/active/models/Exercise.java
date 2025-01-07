@@ -1,20 +1,25 @@
 package com.active.models;
 
 import com.active.models.exercise.*;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 import java.util.List;
 
 @Entity
 @Getter
 @Setter
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 @Table(name = "Exercises")
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class Exercise {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private String id;
 
     @Column(nullable = false, length = 100)
     private String title;
@@ -48,7 +53,7 @@ public class Exercise {
 
     @ElementCollection
     @CollectionTable(name = "ExerciseInstructions", joinColumns = @JoinColumn(name = "exercise_id"))
-    @Column(name = "instruction")
+    @Column(name = "instruction", columnDefinition = "TEXT")
     private List<String> instructions;
 
     @Column(nullable = false)

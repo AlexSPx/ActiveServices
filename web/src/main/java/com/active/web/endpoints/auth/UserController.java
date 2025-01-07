@@ -2,11 +2,11 @@ package com.active.web.endpoints.auth;
 
 import com.active.authservice.token.TokenPair;
 import com.active.authservice.user.UserMe;
-import com.active.authservice.user.UserModel;
 import com.active.authservice.user.UserService;
 import com.active.authservice.user.exceptions.EmailAlreadyInUseException;
 import com.active.authservice.user.exceptions.EmailNotFoundException;
 import com.active.authservice.user.exceptions.WrongPasswordException;
+import com.active.models.User;
 import com.active.web.dto.user.ConnectGoogleAccountRequest;
 import com.active.web.dto.user.UserLoginRequest;
 import com.active.web.dto.user.UserRegisterRequest;
@@ -35,7 +35,7 @@ public class UserController {
     public ResponseEntity<TokenPair> createUser(@RequestBody UserRegisterRequest userRegisterRequest)
             throws EmailAlreadyInUseException {
 
-        UserModel user = UserModel.builder()
+        User user = User.builder()
                 .username(userRegisterRequest.getUsername())
                 .firstname(userRegisterRequest.getFirstname())
                 .gid(null)

@@ -6,9 +6,11 @@ import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
 @AllArgsConstructor
+@NoArgsConstructor
 public class UserRegisterRequest {
     @NotNull(message = "Username is required")
     @Min(value = 4, message = "Username must be at least 4 characters")

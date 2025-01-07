@@ -4,10 +4,7 @@ import com.active.models.Exercise;
 import com.active.models.exercise.*;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
-import jakarta.persistence.criteria.CriteriaBuilder;
-import jakarta.persistence.criteria.CriteriaQuery;
-import jakarta.persistence.criteria.Predicate;
-import jakarta.persistence.criteria.Root;
+import jakarta.persistence.criteria.*;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -20,7 +17,6 @@ public class CustomExerciseRepositoryImpl implements CustomExerciseRepository {
     @PersistenceContext
     private EntityManager entityManager;
 
-    @Override
     public Page<Exercise> findByCriteria(String title,
                                          Force force,
                                          Level level,
@@ -51,11 +47,15 @@ public class CustomExerciseRepositoryImpl implements CustomExerciseRepository {
         if (equipment != null) {
             predicate = cb.and(predicate, cb.equal(root.get("equipment"), equipment));
         }
+        Join<Exercise, Muscle> primaryMusclesJoin = null;
         if (primaryMuscles != null && !primaryMuscles.isEmpty()) {
-            predicate = cb.and(predicate, root.join("primaryMuscles").in(primaryMuscles));
+            primaryMusclesJoin = root.join("primaryMuscles");
+            predicate = cb.and(predicate, primaryMusclesJoin.in(primaryMuscles));
         }
+        Join<Exercise, Muscle> secondaryMusclesJoin = null;
         if (secondaryMuscles != null && !secondaryMuscles.isEmpty()) {
-            predicate = cb.and(predicate, root.join("secondaryMuscles").in(secondaryMuscles));
+            secondaryMusclesJoin = root.join("secondaryMuscles");
+            predicate = cb.and(predicate, secondaryMusclesJoin.in(secondaryMuscles));
         }
         if (category != null) {
             predicate = cb.and(predicate, cb.equal(root.get("category"), category));
@@ -71,9 +71,17 @@ public class CustomExerciseRepositoryImpl implements CustomExerciseRepository {
 
         CriteriaQuery<Long> countQuery = cb.createQuery(Long.class);
         Root<Exercise> countRoot = countQuery.from(Exercise.class);
-        countQuery.select(cb.count(countRoot)).where(predicate);
+        Predicate countPredicate = cb.conjunction();
+
+        if (title != null) {
+            countPredicate = cb.and(countPredicate, cb.like(cb.lower(countRoot.get("title")), "%" + title.toLowerCase() + "%"));
+        }
+        // Repeat other conditions for countQuery
+
+        countQuery.select(cb.count(countRoot)).where(countPredicate);
         Long total = entityManager.createQuery(countQuery).getSingleResult();
 
         return new PageImpl<>(resultList, pageable, total);
     }
+
 }
