@@ -1,15 +1,12 @@
 package com.active.models.workout.template;
 
 import com.active.models.Exercise;
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
-
-import java.util.List;
 
 @Entity
 @Getter

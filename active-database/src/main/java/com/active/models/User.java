@@ -2,7 +2,6 @@ package com.active.models;
 
 
 import com.active.models.workout.Workout;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
@@ -25,13 +24,13 @@ public class User {
     @GeneratedValue(strategy = GenerationType.UUID)
     private String id;
 
-    @Column(nullable = true, unique = true, length = 255)
+    @Column(unique = true)
     private String gid;
 
     @Column(nullable = false, unique = true, length = 50)
     private String username;
 
-    @Column(nullable = false, unique = true, length = 255)
+    @Column(nullable = false, unique = true)
     private String email;
 
     @Column(nullable = false, length = 50)

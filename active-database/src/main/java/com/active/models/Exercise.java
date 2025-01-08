@@ -2,7 +2,6 @@ package com.active.models;
 
 import com.active.models.exercise.*;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -24,7 +23,7 @@ public class Exercise {
     @Column(nullable = false, length = 100)
     private String title;
 
-    @Column(nullable = true)
+    @Column
     @Enumerated(EnumType.STRING)
     private Force force;
 

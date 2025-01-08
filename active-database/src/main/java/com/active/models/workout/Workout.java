@@ -2,9 +2,7 @@ package com.active.models.workout;
 
 import com.active.models.User;
 import com.active.models.workout.template.WorkoutTemplate;
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.data.annotation.CreatedDate;

@@ -7,7 +7,6 @@ import lombok.*;
 import lombok.experimental.SuperBuilder;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
-import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -32,7 +31,7 @@ public class WorkoutRecord {
     private LocalDateTime createdAt;
 
     @ManyToOne
-    @JoinColumn(name = "workout_id", nullable = true)
+    @JoinColumn(name = "workout_id")
     @JsonIgnore
     private Workout workout;
 
