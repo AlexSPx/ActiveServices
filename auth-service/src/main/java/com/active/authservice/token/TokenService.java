@@ -3,6 +3,7 @@ package com.active.authservice.token;
 import com.active.authservice.token.exceptions.RefreshException;
 import com.active.authservice.token.exceptions.TokenException;
 import com.active.authservice.token.exceptions.TokenIssuerException;
+import com.active.authservice.token.keystore.KeyPairProvider;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
@@ -46,7 +47,7 @@ public class TokenService {
                 .compact();
     }
 
-    public String refreshToken(String refresh) {
+    public TokenPair refreshToken(String refresh) {
         Claims claims;
 
         try {
@@ -62,7 +63,7 @@ public class TokenService {
 
 //        TODO: Add blacklisting
 
-        return generateJWT(claims.getSubject());
+        return generateTokenPair(claims.getSubject());
     }
 
     public String validateToken(String token) throws TokenIssuerException, ExpiredJwtException {

@@ -3,6 +3,7 @@ package com.active.authservice.token;
 import com.active.authservice.token.exceptions.RefreshException;
 import com.active.authservice.token.exceptions.TokenException;
 import com.active.authservice.token.exceptions.TokenIssuerException;
+import com.active.authservice.token.keystore.KeyPairProvider;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
@@ -96,13 +97,16 @@ class TokenServiceTest {
                 .signWith(keyPair.getPrivate())
                 .compact();
 
-        String newToken = tokenService.refreshToken(refresh);
+        TokenPair tokenPair = tokenService.refreshToken(refresh);
 
-        assertNotNull(newToken);
+        assertNotNull(tokenPair);
+        assertNotNull(tokenPair.getToken());
+        assertNotNull(tokenPair.getRefresh());
+
         Claims claims = Jwts.parser()
                 .verifyWith(keyPair.getPublic())
                 .build()
-                .parseSignedClaims(newToken)
+                .parseSignedClaims(tokenPair.getToken())
                 .getPayload();
 
         assertEquals(uid, claims.getSubject());

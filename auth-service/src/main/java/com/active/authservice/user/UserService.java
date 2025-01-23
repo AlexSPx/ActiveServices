@@ -10,6 +10,8 @@ import com.active.authservice.user.exceptions.GoogleUserDoesNotExistException;
 import com.active.authservice.user.exceptions.InvalidGoogleIdTokenException;
 import com.active.authservice.user.exceptions.UserNotFoundException;
 import com.active.authservice.user.exceptions.WrongPasswordException;
+import com.active.models.User;
+import com.active.repository.UserRepository;
 import com.google.api.client.auth.openidconnect.IdToken.Payload;
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier;
@@ -34,7 +36,7 @@ public class UserService {
     private final GoogleIdTokenVerifier verifier;
 
     public UserMe getMe(@NonNull @NotBlank String token) {
-       Optional<UserModel> user = userRepository.findById(tokenService.validateToken(token));
+       Optional<User> user = userRepository.findById(tokenService.validateToken(token));
        if (user.isEmpty()) {
            throw new UserNotFoundException();
        }
@@ -50,7 +52,12 @@ public class UserService {
                .build();
     }
 
-    public TokenPair createUser(@NotNull UserModel userModel) throws EmailAlreadyInUseException {
+    public User getUserByid(@NonNull @NotBlank String uid) {
+        return userRepository.findById(uid).orElseThrow(() ->
+                new UserNotFoundException(String.format("User %s not found", uid)));
+    }
+
+    public TokenPair createUser(@NotNull User userModel) throws EmailAlreadyInUseException {
         if (userRepository.existsByEmail(userModel.getEmail())) {
             throw new EmailAlreadyInUseException();
         }
@@ -58,14 +65,14 @@ public class UserService {
         String hashedPassword = encoder.encode(userModel.getPassword());
         userModel.setPassword(hashedPassword);
 
-        UserModel createdUser = userRepository.save(userModel);
+        User createdUser = userRepository.save(userModel);
 
         return tokenService.generateTokenPair(createdUser.getId());
     }
 
     public TokenPair loginUser(String email, String password)
             throws EmailNotFoundException, WrongPasswordException {
-        Optional<UserModel> user = userRepository.findByEmail(email);
+        Optional<User> user = userRepository.findByEmail(email);
         if (user.isEmpty()) {
             throw new EmailNotFoundException();
         }
@@ -85,18 +92,16 @@ public class UserService {
 
         Payload payload = validateToken(idTokenString);
 
-        UserModel user = UserModel.builder()
+        User user = User.builder()
                 .username((String) payload.get("name"))
                 .firstname((String) payload.get("given_name"))
                 .gid(payload.getSubject())
                 .lastname((String) payload.get("family_name"))
                 .email((String) payload.get("email"))
-                .isConfirmed((Boolean) payload.get("email_verified"))
-                .createdAt(LocalDateTime.now())
                 .password(null)
                 .build();
 
-        UserModel createdUser = userRepository.save(user);
+        User createdUser = userRepository.save(user);
 
         return tokenService.generateTokenPair(createdUser.getId());
     }
@@ -105,7 +110,7 @@ public class UserService {
             throws GeneralSecurityException, IOException, GoogleUserDoesNotExistException {
         Payload payload = validateToken(idTokenString);
 
-        Optional<UserModel> user = userRepository.getByGid(payload.getSubject());
+        Optional<User> user = userRepository.getByGid(payload.getSubject());
 
         if (user.isEmpty()) {
             throw new GoogleUserDoesNotExistException();
@@ -118,7 +123,7 @@ public class UserService {
             throws GeneralSecurityException, IOException {
         String uid = tokenService.validateToken(token);
 
-        UserModel user = userRepository.findById(uid)
+        User user = userRepository.findById(uid)
                 .orElseThrow(() -> new AuthenticationException("Account doesn't exist"));
 
         if(user.getGid() != null) {

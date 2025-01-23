@@ -1,0 +1,12 @@
+spring:
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/active_services}
+    username: ${DB_USER:postgres}
+    password: ${DB_PASSWORD:123456}
+  jpa:
+    hibernate:
+      ddl-auto: update
+
+keystore:
+  password: ${KEYSTORE_PASSWORD:123456}
+  alias: ${KEYSTORE_ALIAS:mykey}
