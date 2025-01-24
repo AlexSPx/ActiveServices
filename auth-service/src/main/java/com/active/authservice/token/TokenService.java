@@ -22,6 +22,8 @@ public class TokenService {
     private final KeyPairProvider keyPairProvider;
 
     public TokenPair generateTokenPair(String uid) {
+        log.debug("Generating token pair for user: {}", uid);
+
         return TokenPair.builder()
                 .token(generateJWT(uid))
                 .refresh(generateRefresh(uid))
@@ -29,6 +31,8 @@ public class TokenService {
     }
 
     public String generateJWT(String uid) {
+        log.debug("Generating JWT for user: {}", uid);
+
         return Jwts.builder()
                 .issuer("active")
                 .subject(uid)
@@ -39,6 +43,8 @@ public class TokenService {
     }
 
     public String generateRefresh(String uid) {
+        log.debug("Generating refresh token for user: {}", uid);
+
         return Jwts.builder()
                 .issuer("active")
                 .subject(uid)
@@ -69,6 +75,7 @@ public class TokenService {
     public String validateToken(String token) throws TokenIssuerException, ExpiredJwtException {
         Claims claims;
 
+        log.info("Validating token: {}", token);
         try {
             claims = Jwts.parser()
                     .verifyWith(keyPairProvider.getKeyPair().getPublic())
@@ -77,10 +84,12 @@ public class TokenService {
                     .parseSignedClaims(token)
                     .getPayload();
         } catch (Exception e) {
+            log.info("Token validation failed: {}", e.getMessage());
             throw new TokenException(e);
         }
 
         if (!claims.getIssuer().equals("active")) {
+            log.info("Token issuer is not active");
             throw new TokenIssuerException();
         }
 

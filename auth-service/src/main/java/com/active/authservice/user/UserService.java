@@ -19,14 +19,15 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.security.GeneralSecurityException;
-import java.time.LocalDateTime;
 import java.util.Optional;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class UserService {
@@ -36,12 +37,16 @@ public class UserService {
     private final GoogleIdTokenVerifier verifier;
 
     public UserMe getMe(@NonNull @NotBlank String token) {
-       Optional<User> user = userRepository.findById(tokenService.validateToken(token));
-       if (user.isEmpty()) {
-           throw new UserNotFoundException();
-       }
+        log.info("Getting user by token: {}", token);
 
-       return UserMe.builder()
+        Optional<User> user = userRepository.findById(tokenService.validateToken(token));
+        if (user.isEmpty()) {
+            throw new UserNotFoundException();
+        }
+
+        log.info("User found: {}", user.get());
+
+        return UserMe.builder()
                .id(user.get().getId())
                .gid(user.get().getGid())
                .email(user.get().getEmail())
@@ -53,12 +58,16 @@ public class UserService {
     }
 
     public User getUserByid(@NonNull @NotBlank String uid) {
+        log.info("Getting user by id: {}", uid);
         return userRepository.findById(uid).orElseThrow(() ->
                 new UserNotFoundException(String.format("User %s not found", uid)));
     }
 
     public TokenPair createUser(@NotNull User userModel) throws EmailAlreadyInUseException {
+        log.info("Creating user: {}", userModel);
+
         if (userRepository.existsByEmail(userModel.getEmail())) {
+            log.debug("Email already in use: {}", userModel.getEmail());
             throw new EmailAlreadyInUseException();
         }
 
@@ -66,21 +75,27 @@ public class UserService {
         userModel.setPassword(hashedPassword);
 
         User createdUser = userRepository.save(userModel);
+        log.info("User created: {}", createdUser);
 
         return tokenService.generateTokenPair(createdUser.getId());
     }
 
     public TokenPair loginUser(String email, String password)
             throws EmailNotFoundException, WrongPasswordException {
+        log.info("Logging in user with email: {}", email);
+
         Optional<User> user = userRepository.findByEmail(email);
         if (user.isEmpty()) {
+            log.debug("Email not found: {}", email);
             throw new EmailNotFoundException();
         }
 
         if (!encoder.matches(password, user.get().getPassword())) {
+            log.debug("Wrong password for email: {}", email);
             throw new WrongPasswordException();
         }
 
+        log.info("User logged in: {}", user.get());
         return tokenService.generateTokenPair(user.get().getId());
     }
 
