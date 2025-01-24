@@ -3,96 +3,87 @@ package com.active.authservice.token;
 import com.active.authservice.token.exceptions.RefreshException;
 import com.active.authservice.token.exceptions.TokenException;
 import com.active.authservice.token.exceptions.TokenIssuerException;
-import com.active.authservice.token.keystore.KeyPairProvider;
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.security.SignatureException;
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.security.InvalidKeyException;
+import io.jsonwebtoken.Claims;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-
-import java.time.Instant;
-import java.time.temporal.ChronoUnit;
 import java.util.Date;
+import java.util.concurrent.TimeUnit;
 
 @Service
 @Slf4j
 @RequiredArgsConstructor
 public class TokenService {
-    private final KeyPairProvider keyPairProvider;
+
+    private final SecretKeyProvider secretKeyProvider;
 
     public TokenPair generateTokenPair(String uid) {
         log.debug("Generating token pair for user: {}", uid);
 
         return TokenPair.builder()
-                .token(generateJWT(uid))
-                .refresh(generateRefresh(uid))
+                .token(createJWT(uid, "active", uid, TimeUnit.HOURS.toMillis(1)))
+                .refresh(createJWT(uid, "active", uid, TimeUnit.DAYS.toMillis(365)))
                 .build();
     }
 
-    public String generateJWT(String uid) {
-        log.debug("Generating JWT for user: {}", uid);
-
-        return Jwts.builder()
-                .issuer("active")
-                .subject(uid)
-                .claim("createdOn", new Date())
-                .expiration(Date.from(Instant.now().plus(1, ChronoUnit.HOURS)))
-                .signWith(keyPairProvider.getKeyPair().getPrivate())
-                .compact();
-    }
-
-    public String generateRefresh(String uid) {
-        log.debug("Generating refresh token for user: {}", uid);
-
-        return Jwts.builder()
-                .issuer("active")
-                .subject(uid)
-                .expiration(Date.from(Instant.now().plus(365, ChronoUnit.DAYS)))
-                .signWith(keyPairProvider.getKeyPair().getPrivate())
-                .compact();
-    }
-
-    public TokenPair refreshToken(String refresh) {
-        Claims claims;
-
-        try {
-            claims = Jwts.parser()
-                    .verifyWith(keyPairProvider.getKeyPair().getPublic())
-                    .decryptWith(keyPairProvider.getKeyPair().getPrivate())
-                    .build()
-                    .parseSignedClaims(refresh)
-                    .getPayload();
-        } catch (Exception ignored) {
-            throw new RefreshException();
-        }
-
-//        TODO: Add blacklisting
-
-        return generateTokenPair(claims.getSubject());
-    }
-
     public String validateToken(String token) throws TokenIssuerException, ExpiredJwtException {
-        Claims claims;
-
-        log.info("Validating token: {}", token);
         try {
-            claims = Jwts.parser()
-                    .verifyWith(keyPairProvider.getKeyPair().getPublic())
-                    .decryptWith(keyPairProvider.getKeyPair().getPrivate())
+            Claims claims = Jwts.parser()
+                    .setSigningKey(secretKeyProvider.getSecretKey())
                     .build()
-                    .parseSignedClaims(token)
-                    .getPayload();
-        } catch (Exception e) {
+                    .parseClaimsJws(token)
+                    .getBody();
+
+            if (!claims.getIssuer().equals("active")) {
+                log.info("Token issuer is not active");
+                throw new TokenIssuerException();
+            }
+
+            return claims.getSubject();
+        } catch (ExpiredJwtException e) {
+            log.info("Token expired: {}", e.getMessage());
+            throw e;
+        } catch (SignatureException | InvalidKeyException e) {
             log.info("Token validation failed: {}", e.getMessage());
             throw new TokenException(e);
         }
+    }
 
-        if (!claims.getIssuer().equals("active")) {
-            log.info("Token issuer is not active");
-            throw new TokenIssuerException();
+    public TokenPair refreshToken(String refresh) {
+        try {
+            Claims claims = getClaims(refresh);
+
+            return generateTokenPair(claims.getSubject());
+        } catch (Exception e) {
+            throw new RefreshException();
         }
+    }
 
-        return claims.getSubject();
+    private Claims getClaims(String token) {
+        return Jwts.parser()
+                .setSigningKey(secretKeyProvider.getSecretKey())
+                .build()
+                .parseClaimsJws(token)
+                .getBody();
+    }
+
+    private String createJWT(String id, String issuer, String subject, long ttlMillis) {
+        log.debug("Creating JWT for subject: {}", subject);
+
+        long nowMillis = System.currentTimeMillis();
+        Date now = new Date(nowMillis);
+        return Jwts.builder()
+                .id(id)
+                .issuedAt(now)
+                .subject(subject)
+                .issuer(issuer)
+                .signWith(secretKeyProvider.getSecretKey())
+                .expiration(new Date(nowMillis + ttlMillis))
+                .compact();
     }
 }

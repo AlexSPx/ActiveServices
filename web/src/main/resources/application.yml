@@ -7,6 +7,5 @@ spring:
     hibernate:
       ddl-auto: update
 
-keystore:
-  password: ${KEYSTORE_PASSWORD:123456}
-  alias: ${KEYSTORE_ALIAS:mykey}
+jwt:
+  secret: ${JWT_SECRET:nstUwnywnLRwZBHxCOqpxYlA02DRfQt2C0wjIJ4QRFYfdGaMHI}
