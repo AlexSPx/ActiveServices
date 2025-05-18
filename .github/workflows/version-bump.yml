@@ -7,13 +7,11 @@ on:
 
 jobs:
   bump-version:
-    if: !startsWith(github.event.head_commit.message, '[Version]')
     runs-on: ubuntu-latest
-
+    if: !startsWith(github.event.head_commit.message, '[Version]')
     permissions:
       contents: write
       pull-requests: write
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
