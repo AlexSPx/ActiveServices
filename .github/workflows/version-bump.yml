@@ -1,0 +1,66 @@
+name: Bump Version and Update YML
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  bump-version:
+    if: "github.event.head_commit.message != 'chore: bump version'"
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+      pull-requests: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Git identity
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+      - name: Read current version
+        id: get_version
+        run: |
+          VERSION=$(cat VERSION)
+          echo "current=$VERSION" >> $GITHUB_OUTPUT
+
+      - name: Bump patch version
+        id: bump_version
+        run: |
+          current=${{ steps.get_version.outputs.current }}
+          IFS='.' read -r major minor patch <<< "$current"
+          new_version="$major.$minor.$((patch + 1))"
+          echo "$new_version" > VERSION
+          echo "new=$new_version" >> $GITHUB_OUTPUT
+
+      - name: Update application.yml
+        run: |
+          file="src/main/resources/application.yml"
+          new_version=${{ steps.bump_version.outputs.new }}
+          
+          if grep -q '^app:' "$file"; then
+            # If app.version exists, replace it
+            if grep -q 'app:[[:space:]]*$' "$file"; then
+              sed -i "/app:[[:space:]]*$/,/^[^[:space:]]/ s/version: .*/version: $new_version/" "$file"
+            else
+              sed -i "s/version: .*/version: $new_version/" "$file"
+            fi
+          else
+            echo -e "\napp:\n  version: $new_version" >> "$file"
+          fi
+
+      - name: Commit and push
+        run: |
+          git add VERSION src/main/resources/application.yml
+          git commit -m "chore: bump version to ${{ steps.bump_version.outputs.new }}"
+          git push origin main
+
+      - name: Tag the release
+        run: |
+          git tag "v${{ steps.bump_version.outputs.new }}"
+          git push origin "v${{ steps.bump_version.outputs.new }}"
