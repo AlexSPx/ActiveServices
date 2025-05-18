@@ -7,7 +7,7 @@ on:
 
 jobs:
   bump-version:
-    if: "github.event.head_commit.message != 'chore: bump version'"
+    if: github.event.head_commit.message != '[Version] bump'
     runs-on: ubuntu-latest
 
     permissions:
@@ -57,7 +57,7 @@ jobs:
       - name: Commit and push
         run: |
           git add VERSION web/src/main/resources/application.yml
-          git commit -m "chore: bump version to ${{ steps.bump_version.outputs.new }}"
+          git commit -m "[Version] bump to ${{ steps.bump_version.outputs.new }}"
           git push origin main
 
       - name: Tag the release
