@@ -40,7 +40,7 @@ jobs:
 
       - name: Update application.yml
         run: |
-          file="src/main/resources/application.yml"
+          file="web/src/main/resources/application.yml"
           new_version=${{ steps.bump_version.outputs.new }}
           
           if grep -q '^app:' "$file"; then
@@ -56,7 +56,7 @@ jobs:
 
       - name: Commit and push
         run: |
-          git add VERSION src/main/resources/application.yml
+          git add VERSION web/src/main/resources/application.yml
           git commit -m "chore: bump version to ${{ steps.bump_version.outputs.new }}"
           git push origin main
 
