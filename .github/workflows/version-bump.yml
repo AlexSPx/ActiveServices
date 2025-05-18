@@ -42,7 +42,7 @@ jobs:
         run: |
           file="web/src/main/resources/application.yml"
           new_version=${{ steps.bump_version.outputs.new }}
-
+          
           if grep -q '^app:' "$file"; then
             # If app.version exists, replace it
             if grep -q 'app:[[:space:]]*$' "$file"; then
@@ -58,10 +58,9 @@ jobs:
         run: |
           git add VERSION web/src/main/resources/application.yml
           git commit -m "[Version] bump to ${{ steps.bump_version.outputs.new }}"
-          git remote set-url origin https://${{ secrets.ACTIONS_BOT_TOKEN }}@github.com/${{ github.repository }}
           git push origin main
 
       - name: Tag the release
         run: |
           git tag "v${{ steps.bump_version.outputs.new }}"
-          git push origin "v${{ secrets.ACTIONS_BOT_TOKEN }}@github.com/${{ github.repository }} refs/tags/v${{ steps.bump_version.outputs.new }}"
+          git push origin "v${{ steps.bump_version.outputs.new }}"
