@@ -1,14 +1,13 @@
-name: Bump Version in PR
+name: Bump Version and Update YML
 
 on:
-  pull_request:
-    types: [opened, synchronize, reopened]
+  push:
     branches:
       - main
 
 jobs:
   bump-version:
-    if: github.event.pull_request.head.repo.full_name == github.repository
+    if: "github.event.head_commit.message != 'chore: bump version'"
     runs-on: ubuntu-latest
 
     permissions:
@@ -16,12 +15,10 @@ jobs:
       pull-requests: write
 
     steps:
-      - name: Checkout PR branch
+      - name: Checkout repository
         uses: actions/checkout@v4
-        with:
-          ref: ${{ github.head_ref }}
 
-      - name: Setup Git
+      - name: Setup Git identity
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
@@ -45,19 +42,25 @@ jobs:
         run: |
           file="web/src/main/resources/application.yml"
           new_version=${{ steps.bump_version.outputs.new }}
-
+          
           if grep -q '^app:' "$file"; then
-            if grep -q 'version:' "$file"; then
-              sed -i "s/version: .*/version: $new_version/" "$file"
+            # If app.version exists, replace it
+            if grep -q 'app:[[:space:]]*$' "$file"; then
+              sed -i "/app:[[:space:]]*$/,/^[^[:space:]]/ s/version: .*/version: $new_version/" "$file"
             else
-              echo "  version: $new_version" >> "$file"
+              sed -i "s/version: .*/version: $new_version/" "$file"
             fi
           else
             echo -e "\napp:\n  version: $new_version" >> "$file"
           fi
 
-      - name: Commit and push version bump to PR
+      - name: Commit and push
         run: |
           git add VERSION web/src/main/resources/application.yml
-          git commit -m "chore: bump version to ${{ steps.bump_version.outputs.new }}" || echo "No changes to commit"
-          git push origin HEAD
+          git commit -m "chore: bump version to ${{ steps.bump_version.outputs.new }}"
+          git push origin main
+
+      - name: Tag the release
+        run: |
+          git tag "v${{ steps.bump_version.outputs.new }}"
+          git push origin "v${{ steps.bump_version.outputs.new }}"
