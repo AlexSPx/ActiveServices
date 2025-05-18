@@ -89,7 +89,7 @@ public class WorkoutService {
     }
 
     public List<WorkoutRecordWithTitle> getWorkoutRecordsByUser(String uid) {
-        List<WorkoutRecord> workoutRecords = workoutRecordRepository.findAllByWorkout_User_Id(uid, PageRequest.of(0, 10)).getContent();
+        List<WorkoutRecord> workoutRecords = workoutRecordRepository.findAllByWorkout_User_Id(uid, PageRequest.of(0, 100)).getContent();
 
         return workoutRecords.stream()
                 .map(wr -> new WorkoutRecordWithTitle(

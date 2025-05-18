@@ -26,10 +26,8 @@ public class JwtInterceptor implements HandlerInterceptor {
         }
 
         String token = authHeader.substring(7); // "Bearer " is 7 characters long
-        log.error("Token: {}", token);
         try {
             String uid = tokenService.validateToken(token);
-            log.error("Uid: {}", uid);
             request.setAttribute("X-Uid", uid);
         } catch (Exception e) {
             log.error("Error: {}", e.getMessage());
