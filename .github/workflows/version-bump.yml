@@ -15,8 +15,17 @@ jobs:
       pull-requests: write
 
     steps:
+      - name: Generate token
+        id: generate_token
+        uses: actions/create-github-app-token@v1
+        with:
+          app-id: ${{ secrets.APP_ID }}
+          private-key: ${{ secrets.APP_PRIVATE_KEY }}
+
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          token: ${{ steps.generate_token.outputs.token }}
 
       - name: Setup Git identity
         run: |
