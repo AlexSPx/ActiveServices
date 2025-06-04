@@ -20,7 +20,7 @@ WORKDIR /app
 COPY --from=builder /app/web/target/web-*.jar app.jar
 
 # Copy the application.yml file to the classpath root
-COPY /web/src/main/resources/application.yml ./application.yml
+COPY /web/src/main/resources/application.properties ./application.properties
 
 # Expose the default port used by the application
 EXPOSE 8080

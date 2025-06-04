@@ -1,0 +1,73 @@
+@startuml Gym Application Architecture
+skinparam linetype ortho
+skinparam nodesep 50
+skinparam ranksep 80
+
+!define AWSPuml https://raw.githubusercontent.com/awslabs/aws-icons-for-plantuml/v19.0/dist
+
+!include AWSPuml/AWSCommon.puml
+!include AWSPuml/AWSSimplified.puml
+!include AWSPuml/NetworkingContentDelivery/ElasticLoadBalancing.puml
+!include AWSPuml/Compute/EC2AutoScaling.puml
+!include AWSPuml/Compute/EC2.puml
+!include AWSPuml/Containers/Containers.puml
+!include AWSPuml/Database/RDS.puml
+!include AWSPuml/ManagementGovernance/CloudWatch.puml
+!include AWSPuml/NetworkingContentDelivery/VPCNATGateway.puml
+!include AWSPuml/Groups/AWSCloud.puml
+!include AWSPuml/Groups/VPC.puml
+!include AWSPuml/Groups/AvailabilityZone.puml
+!include AWSPuml/Groups/AutoScalingGroup.puml
+!include AWSPuml/Groups/Generic.puml
+!include AWSPuml/Groups/PublicSubnet.puml
+!include AWSPuml/Groups/PrivateSubnet.puml
+!include AWSPuml/SecurityIdentityCompliance/SecretsManager.puml
+
+actor "User" as user
+
+AWSCloudGroup(cloud) {
+
+  ElasticLoadBalancing(alb, "Application\nLoad Balancer", "Routes HTTP(S) requests")
+
+  VPCGroup(vpc) {
+
+    PublicSubnetGroup(pubsub, "Public Subnet") {
+      GenericGroup(targetgroup, "Target Group") {
+        EC2(ec21, "EC2 Instance", "App Server 1")
+        EC2(ec22, "EC2 Instance", "App Server 2")
+      }
+
+      EC2AutoScaling(asg, "Auto Scaling\nGroup", "Manages EC2 scaling")
+    }
+
+    PrivateSubnetGroup(privsub, "Private Subnet") {
+      RDS(rds, "Amazon RDS", "PostgreSQL\nMulti-AZ")
+
+      GenericGroup(secrets, "AWS Secrets Manager") {
+        SecretsManager(secret1, "DB Credentials", "Rotating secrets")
+        SecretsManager(secret2, "App Config", "Application secrets")
+      }
+    }
+
+    CloudWatch(cloudwatch, "CloudWatch", "Logs & Metrics")
+  }
+}
+
+user --> alb : "HTTPS requests"
+alb --> targetgroup : "Forward requests"
+asg --> ec21 : "Manages"
+asg --> ec22 : "Manages"
+
+ec21 --> rds : "Database\nconnections"
+ec22 --> rds : "Database\nconnections"
+ec21 --> secrets : "Fetch secrets"
+ec22 --> secrets : "Fetch secrets"
+
+ec21 --> cloudwatch : "Send logs\n& metrics"
+ec22 --> cloudwatch : "Send logs\n& metrics"
+
+user -[hidden]down-> alb
+alb -[hidden]down-> pubsub
+pubsub -[hidden]down-> privsub
+
+@enduml
